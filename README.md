@@ -31,6 +31,8 @@ The workflow is as below:
 From the web interface http://localhost:9000/ add data and data will be queued in book.order.queue.
 WarehouseReceiver.java listens messages coming from book.order.queue; then WarehouseReceiver send data to warehouseProcessingService.processOrder(bookOrder);
 WarehouseProcessingService sends to book.order.processed.queue and we set up synchronous service to listen this message configured in JmsConfig.java
+
+<b>Below is the custom listener used only in chapter 3</b>
 ```
 //Introduce our listener that we have created BookOrderProcessingMessageListener
 	@Override
