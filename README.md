@@ -31,7 +31,7 @@ The workflow is as below:
 From the web interface http://localhost:9000/ add data and data will be queued in book.order.queue.
 WarehouseReceiver.java listens messages coming from book.order.queue; then WarehouseReceiver send data to warehouseProcessingService.processOrder(bookOrder);
 WarehouseProcessingService sends to book.order.processed.queue and we set up synchronous service to listen this message configured in JmsConfig.java
-
+```
 //Introduce our listener that we have created BookOrderProcessingMessageListener
 	@Override
 	public void configureJmsListeners(JmsListenerEndpointRegistrar registrar) {
@@ -50,5 +50,5 @@ WarehouseProcessingService sends to book.order.processed.queue and we set up syn
 		 * book border.order.processed.queue and our customer will listen from that queue
 		 * */
 	}
-  
+  ```
 ![image](https://user-images.githubusercontent.com/1523220/173213440-f44d3d27-1704-429a-a3db-7eac34023e27.png)
