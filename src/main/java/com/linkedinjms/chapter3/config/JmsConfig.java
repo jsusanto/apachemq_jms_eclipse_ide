@@ -6,13 +6,17 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.annotation.JmsListenerConfigurer;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.config.JmsListenerEndpointRegistrar;
+import org.springframework.jms.config.SimpleJmsListenerEndpoint;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MarshallingMessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
+import com.linkedinjms.chapter3.listener.BookOrderProcessingMessageListener;
 import com.linkedinjms.chapter3.pojos.Book;
 import com.linkedinjms.chapter3.pojos.BookOrder;
 import com.linkedinjms.chapter3.pojos.Customer;
@@ -21,7 +25,7 @@ import com.linkedinjms.chapter3.pojos.Customer;
 @EnableJms
 //Add the annotation below so that Spring will know that this is part of configuration
 @Configuration
-public class JmsConfig {
+public class JmsConfig implements JmsListenerConfigurer{
 	/*
 	 * Remember to use JmsSupportConverterOne
 	 * @Bean to tell Spring to prepopulate these config
@@ -59,4 +63,30 @@ public class JmsConfig {
 		
 		return factory;
 	}
+
+	//********************************************************************************
+	//Introduce our listener that we have created BookOrderProcessingMessageListener
+	@Override
+	public void configureJmsListeners(JmsListenerEndpointRegistrar registrar) {
+		SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
+        endpoint.setMessageListener(jmsMessageListener());
+        endpoint.setDestination("book.order.processed.queue");
+        endpoint.setId("book-order-processed-queue");
+        endpoint.setConcurrency("1");
+        endpoint.setSubscription("my-subscription");
+        registrar.registerEndpoint(endpoint, jmsListenerContainerFactory());
+        registrar.setContainerFactory(jmsListenerContainerFactory());
+		
+		/*
+		 * By having the configuration above, when we send message
+		 * it will process to the warehouse and to the book order process and to 
+		 * book border.order.processed.queue and our customer will listen from that queue
+		 * */
+	}
+	
+	@Bean
+	public BookOrderProcessingMessageListener jmsMessageListener() {
+		return new BookOrderProcessingMessageListener();
+	}
+	//********************************************************************************
 }
